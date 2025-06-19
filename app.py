@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import joblib
 import numpy as np
 import pandas as pd
-from custom_transformers import CombinedAttributesAdder
+from custom_transformers import CombinedAttributesAdder   # ✅ Import here
 
 app = Flask(__name__)
 
@@ -24,11 +24,11 @@ FEATURE_COLUMNS = [
 
 @app.route('/')
 def home():
-    return render_template('index.html')   # <-- Homepage
+    return render_template('index.html')
 
 @app.route('/predict', methods=['GET'])
 def show_predict_form():
-    return render_template('predict.html')  # <-- Prediction Form Page
+    return render_template('predict.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
