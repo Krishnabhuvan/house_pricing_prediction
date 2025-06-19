@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Predict | Housing Price Predictor</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(120deg, #1f4037, #99f2c8);
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  .container {
+    background: #fff;
+    padding: 2rem;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  }
+  h1 {
+    text-align: center;
+    color: #185a9d;
+    margin-bottom: 1rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+  input, select {
+    padding: 15px 4px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    width: 100%;
+  }
+  button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(90deg, #43cea2, #185a9d);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s ease;
+  }
+  button:hover {
+    background: linear-gradient(90deg, #185a9d, #43cea2);
+  }
+  .spinner {
+    display: none;
+    margin: 1rem auto;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #185a9d;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .result {
+    margin-top: 1rem;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+  #goBack {
+    margin-top: 0.8rem;
+    text-align: center;
+    cursor: pointer;
+    color: #185a9d;
+    text-decoration: underline;
+    font-weight: 500;
+  }
+  .nav-home {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  .nav-home a {
+    color: #185a9d;
+    text-decoration: underline;
+  }
+  @media (max-width: 768px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="nav-home"><a href="/">← Home</a></div>
+  <h1>Predict House Price</h1>
+
+  <div class="grid">
+    <input type="number" step="any" id="longitude" placeholder="Longitude" required>
+    <input type="number" step="any" id="latitude" placeholder="Latitude" required>
+    <input type="number" step="any" id="housing_median_age" placeholder="Housing Median Age" required>
+    <input type="number" step="any" id="total_rooms" placeholder="Total Rooms" required>
+    <input type="number" step="any" id="total_bedrooms" placeholder="Total Bedrooms" required>
+    <input type="number" step="any" id="population" placeholder="Population" required>
+    <input type="number" step="any" id="households" placeholder="Households" required>
+    <input type="number" step="any" id="median_income" placeholder="Median Income" required>
+    <select id="ocean_proximity" required>
+      <option value="" disabled selected>Ocean Proximity</option>
+      <option value="NEAR BAY">NEAR BAY</option>
+      <option value="INLAND">INLAND</option>
+      <option value="<1H OCEAN">&lt;1H OCEAN</option>
+      <option value="NEAR OCEAN">NEAR OCEAN</option>
+      <option value="ISLAND">ISLAND</option>
+    </select>
+  </div>
+
+  <button onclick="makePrediction()">Predict Price</button>
+  <div class="spinner" id="loadingSpinner"></div>
+  <div class="result" id="result"></div>
+  <div id="goBack" onclick="resetForm()">Go Back</div>
+</div>
+
+<script>
+  async function makePrediction() {
+    const spinner = document.getElementById('loadingSpinner');
+    const result = document.getElementById('result');
+    const goBack = document.getElementById('goBack');
+    spinner.style.display = 'block';
+    result.style.display = 'none';
+    goBack.style.display = 'none';
+
+    const data = {
+      longitude: parseFloat(document.getElementById('longitude').value),
+      latitude: parseFloat(document.getElementById('latitude').value),
+      housing_median_age: parseFloat(document.getElementById('housing_median_age').value),
+      total_rooms: parseFloat(document.getElementById('total_rooms').value),
+      total_bedrooms: parseFloat(document.getElementById('total_bedrooms').value),
+      population: parseFloat(document.getElementById('population').value),
+      households: parseFloat(document.getElementById('households').value),
+      median_income: parseFloat(document.getElementById('median_income').value),
+      ocean_proximity: document.getElementById('ocean_proximity').value
+    };
+
+    try {
+      const response = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const json = await response.json();
+      result.style.display = 'block';
+      if (response.ok) {
+        result.textContent = `Predicted Price: $${json.prediction}`;
+        result.style.color = '#185a9d';
+      } else {
+        result.textContent = `Error: ${json.error}`;
+        result.style.color = 'red';
+      }
+    } catch (err) {
+      result.textContent = `Error: ${err.message}`;
+      result.style.color = 'red';
+      result.style.display = 'block';
+    } finally {
+      spinner.style.display = 'none';
+      goBack.style.display = 'block';
+    }
+  }
+
+  function resetForm() {
+    document.querySelectorAll("input, select").forEach(el => el.value = "");
+    document.getElementById('result').style.display = 'none';
+    document.getElementById('goBack').style.display = 'none';
+  }
+</script>
+</body>
+</html>
