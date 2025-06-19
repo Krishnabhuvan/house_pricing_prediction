@@ -1,0 +1,19 @@
+# --- Web Framework ---
+Flask==3.0.0               # Lightweight Python web framework
+gunicorn==22.0.0           # Production WSGI server for Flask
+
+# --- ML Model Handling ---
+joblib==1.3.2              # For saving/loading trained models
+
+# --- Data Processing & Machine Learning ---
+numpy==1.26.4              # Numerical computations
+pandas==2.2.2              # Data manipulation and analysis
+scikit-learn==1.5.0        # Machine learning models and pipelines
+
+# --- (Optional) Visualization Libraries ---
+matplotlib==3.9.0          # Data visualization (optional for analysis)
+seaborn==0.13.2            # Statistical data visualization (optional)
+
+# Note:
+# - matplotlib and seaborn are optional; useful during development or for plots.
+# - gunicorn is required if deploying on Render, Railway, Heroku, etc.
