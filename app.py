@@ -7,7 +7,7 @@ from custom_transformers import CombinedAttributesAdder   # ✅ Import here
 app = Flask(__name__)
 
 # Load model and pipeline
-
+model = joblib.load("models/house_price_model.pkl")
 pipeline = joblib.load("models/data_pipeline.pkl")
 
 FEATURE_COLUMNS = [
